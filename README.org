@@ -1,0 +1,74 @@
+* Dependency Ordering Service
+
+Given a list of tasks or dependencies, this service will order the
+list in execution order.
+
+Example request body
+
+#+BEGIN_SRC json
+  {
+    "tasks":[
+      {
+        "name":"task-1",
+        "command":"touch /tmp/file1"
+      },
+      {
+        "name":"task-2",
+        "command":"cat /tmp/file1",
+        "requires":[
+          "task-3"
+        ]
+      },
+      {
+        "name":"task-3",
+        "command":"echo 'Hello World!' > /tmp/file1",
+        "requires":[
+          "task-1"
+        ]
+      },
+      {
+        "name":"task-4",
+        "command":"rm /tmp/file1",
+        "requires":[
+          "task-2",
+          "task-3"
+        ]
+      }
+    ]
+  }
+#+END_SRC
+
+Example return body
+
+#+BEGIN_SRC json
+  [
+    {
+      "name":"task-1",
+      "command":"touch /tmp/file1"
+    },
+    {
+      "name":"task-3",
+      "command":"echo 'Hello World!' > /tmp/file1"
+    },
+    {
+      "name":"task-2",
+      "command":"cat /tmp/file1"
+    },
+    {
+      "name":"task-4",
+      "command":"rm /tmp/file1"
+    }
+  ]
+#+END_SRC
+
+With an optional flag the service will return a bash script compatible
+format.
+
+#+BEGIN_SRC bash
+  #!/usr/bin/env bash
+
+  touch /tmp/file1
+  echo "Hello World!" > /tmp/file1
+  cat /tmp/file1
+  rm /tmp/file1
+#+END_SRC
