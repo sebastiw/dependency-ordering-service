@@ -72,3 +72,10 @@ format.
   cat /tmp/file1
   rm /tmp/file1
 #+END_SRC
+
+** TODO Future work
+   - [ ] Tune proper tests
+   - [ ] Add logging
+   - [ ] Eunit for known failed test cases
+   - [ ] Dockerfile
+   - [ ] Licence file
