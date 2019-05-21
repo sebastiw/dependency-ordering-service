@@ -8,6 +8,7 @@
 
 start(normal, []) ->
     {ok, _} = start_cowboy(),
+    dos_metrics:setup(),
     {ok, _} = dos_sup:start_link().
 
 stop(_) ->
@@ -16,6 +17,7 @@ stop(_) ->
 
 start_cowboy() ->
     Routes = [ {'_', [ {"/order", dos_order_handler, #{}}
+                     , {"/metrics", dos_metrics_handler, #{}}
                      ]
                }
              ],

@@ -25,6 +25,7 @@ from_json(Req0, State) ->
     {ok, JsonBinary, Req1} = cowboy_req:read_body(Req0),
     case try_order_tasks(JsonBinary) of
         {ok, Ordered} ->
+            dos_metrics:inc(successful_requests, [length(Ordered)]),
             #{format := Format} = State,
             case format_output(Ordered, Format) of
                 {ok, Response} ->
@@ -63,6 +64,7 @@ format_output(_, _) ->
     {error, unrecognised_format}.
 
 fail_request({error, E} = Err, Req1) ->
+    dos_metrics:inc(failed_requests, [E]),
     Response = format_error(Err),
     cowboy_req:set_resp_body(Response, Req1).
 
