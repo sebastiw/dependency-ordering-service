@@ -7,7 +7,21 @@
         ]).
 
 start(normal, []) ->
+    {ok, _} = start_cowboy(),
     {ok, _} = dos_sup:start_link().
 
 stop(_) ->
-    ok.
+    cowboy:stop_listener(dos_http_listener).
+
+
+start_cowboy() ->
+    Routes = [ {'_', [ {"/order", dos_order_handler, #{}}
+                     ]
+               }
+             ],
+    Dispatch = cowboy_router:compile(Routes),
+    Port = application:get_env(dos, http_port, 8000),
+    cowboy:start_clear( dos_http_listener
+                      , [{port, Port}]
+                      , #{env => #{dispatch => Dispatch}}
+                      ).
