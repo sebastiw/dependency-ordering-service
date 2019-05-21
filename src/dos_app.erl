@@ -7,7 +7,7 @@
         ]).
 
 start(normal, []) ->
-    {ok, nothing}.
+    {ok, _} = dos_sup:start_link().
 
 stop(_) ->
     ok.
