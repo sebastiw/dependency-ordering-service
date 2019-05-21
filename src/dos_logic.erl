@@ -1,7 +1,53 @@
 -module(dos_logic).
 
--export([ get_ordered_tasks/1
+-export([ order/1
+        , check_no_duplicates/1
+        , check_dependencies_exist/1
+        , check_no_self_references/1
+        , get_ordered_tasks/1
         ]).
+
+order(Tasks) ->
+    Checks = [ {fun check_no_duplicates/1, duplicates}
+             , {fun check_dependencies_exist/1, dependency_does_not_exist}
+             , {fun check_no_self_references/1, self_reference}
+             ],
+    case do_checks(Checks, Tasks) of
+        ok ->
+            get_ordered_tasks(Tasks);
+        Err ->
+            Err
+    end.
+
+do_checks([], _) ->
+    ok;
+do_checks([{CheckFun, Error}|Funs], Tasks) ->
+    case CheckFun(Tasks) of
+        false ->
+            {error, Error};
+        true ->
+            do_checks(Funs, Tasks)
+    end.
+
+check_no_duplicates(Tasks) ->
+    Names = get_all_names(Tasks),
+    length(Names) == length(lists:usort(Names)).
+
+check_dependencies_exist(Tasks) ->
+    Names = get_all_names(Tasks),
+    Deps = get_all_requires(Tasks),
+    lists:all(fun (B) -> B end, [lists:member(D, Names) || D <- Deps]).
+
+check_no_self_references(Tasks) ->
+    lists:all(fun (B) -> B end,
+              [not lists:member(Name, Deps)
+               || #{<<"name">> := Name, <<"requires">> := Deps} <- Tasks]).
+
+get_all_names(Tasks) ->
+    [N || #{<<"name">> := N} <- Tasks].
+
+get_all_requires(Tasks) ->
+    lists:append([Rs || #{<<"requires">> := Rs} <- Tasks]).
 
 get_ordered_tasks(Tasks) ->
     G = build_dep_tree(Tasks),

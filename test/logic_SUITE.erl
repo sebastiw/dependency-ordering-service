@@ -21,26 +21,26 @@
 example_test() ->
     In = [ ?TASK1, ?TASK2, ?TASK3, ?TASK4 ],
     Out = [ ?TASK1, ?TASK3, ?TASK2, ?TASK4 ],
-    ?assertEqual({ok, Out}, dos_logic:get_ordered_tasks(In)).
+    ?assertEqual({ok, Out}, dos_logic:order(In)).
 
 duplicate_test() ->
     In = [ ?TASK1, ?TASK1 ],
     Out = {error, duplicates},
-    ?assertEqual(Out, dos_logic:get_ordered_tasks(In)).
+    ?assertEqual(Out, dos_logic:order(In)).
 
 dependencies_exist_test() ->
     In = [ ?TASK2 ],
     Out = {error, dependency_does_not_exist},
-    ?assertEqual(Out, dos_logic:get_ordered_tasks(In)).
+    ?assertEqual(Out, dos_logic:order(In)).
 
 self_reference_test() ->
     Task1Name = maps:get(<<"name">>, ?TASK1),
     In = [ ?TASK1#{<<"requires">> => [Task1Name]} ],
     Out = {error, self_reference},
-    ?assertEqual(Out, dos_logic:get_ordered_tasks(In)).
+    ?assertEqual(Out, dos_logic:order(In)).
 
 topological_order_test() ->
     Task3Name = maps:get(<<"name">>, ?TASK3),
     In = [ ?TASK1#{<<"requires">> => [Task3Name]}, ?TASK3 ],
     Out = {error, no_topological_order_exist},
-    ?assertEqual(Out, dos_logic:get_ordered_tasks(In)).
+    ?assertEqual(Out, dos_logic:order(In)).
