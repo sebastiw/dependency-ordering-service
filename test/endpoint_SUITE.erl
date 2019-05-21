@@ -39,6 +39,7 @@ endpoints_test_() ->
      fun (_S) ->
              [ order_endpoint("json")
              , order_endpoint("bash")
+             , metrics()
              ]
      end}.
 
@@ -57,6 +58,11 @@ order_endpoint(Format) ->
       , ?_assertEqual(?OUTPUT(Format), list_to_binary(Body))}
     ].
 
+metrics() ->
+    [ { "Test successful metric count"
+      , ?_assert(check_metrics(4, 2)) }
+    ].
+
 base_url() ->
     Port = application:get_env(dos, http_port, 8000),
     "http://localhost:" ++ integer_to_list(Port).
@@ -65,3 +71,16 @@ order_url("json") ->
     base_url() ++ "/order";
 order_url(Format) ->
     base_url() ++ "/order?format=" ++ Format.
+metrics_url() ->
+    base_url() ++ "/metrics".
+
+check_metrics(NumTasks, ExpectedCount) ->
+    Request = {metrics_url(), []},
+    {ok, {{_, 200, _}, _H, Body}} = httpc:request(get, Request, [], []),
+    test_metrics(Body, NumTasks, ExpectedCount).
+
+test_metrics(Body, NumTasks, ExpectedCount) ->
+    TaskLen = integer_to_list(NumTasks),
+    Count = integer_to_list(ExpectedCount),
+    Regex = "successful_requests{task_length=\"" ++ TaskLen ++ "\"} " ++ Count,
+    match == re:run(Body, Regex, [{capture, none}]).
