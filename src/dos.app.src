@@ -1,0 +1,11 @@
+{application, dos,
+ [ {description, "Dependency ordering service"}
+ , {vsn, "0.0.1"}
+ , {applications, [ kernel
+                  , stdlib
+                  , sasl
+                  ]}
+ , {env, []
+ , {mod, {dos_app, []}}
+   }
+ ]}.
