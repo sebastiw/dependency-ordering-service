@@ -73,9 +73,18 @@ format.
   rm /tmp/file1
 #+END_SRC
 
+** Endpoints
+
+#+BEGIN_SRC curl
+  http://localhost:8000/order
+  http://localhost:8000/metrics
+#+END_SRC
+
 ** TODO Future work
    - [ ] Tune proper tests
    - [ ] Add logging
    - [ ] Eunit for known failed test cases
    - [ ] Dockerfile
    - [ ] Licence file
+   - [ ] Add documentation (edocs)
+   - [ ] REST is sooo 2000, let's to GraphQL
