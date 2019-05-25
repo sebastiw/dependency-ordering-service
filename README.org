@@ -3,9 +3,12 @@
 Given a list of tasks or dependencies, this service will order the
 list in execution order.
 
-Example request body
+Example
 
-#+BEGIN_SRC json
+#+BEGIN_SRC bash
+$ curl -s "http://localhost:8000/order" \
+    --header "Content-Type: Application/json" \
+    --data '@-' << END | jq .
   {
     "tasks":[
       {
@@ -36,41 +39,71 @@ Example request body
       }
     ]
   }
+END
+[
+  {
+    "command": "touch /tmp/file1",
+    "name": "task-1"
+  },
+  {
+    "command": "echo 'Hello World!' > /tmp/file1",
+    "name": "task-3"
+  },
+  {
+    "command": "cat /tmp/file1",
+    "name": "task-2"
+  },
+  {
+    "command": "rm /tmp/file1",
+    "name": "task-4"
+  }
+]
 #+END_SRC
 
-Example return body
-
-#+BEGIN_SRC json
-  [
-    {
-      "name":"task-1",
-      "command":"touch /tmp/file1"
-    },
-    {
-      "name":"task-3",
-      "command":"echo 'Hello World!' > /tmp/file1"
-    },
-    {
-      "name":"task-2",
-      "command":"cat /tmp/file1"
-    },
-    {
-      "name":"task-4",
-      "command":"rm /tmp/file1"
-    }
-  ]
-#+END_SRC
-
-With an optional flag the service will return a bash script compatible
-format.
+With an optional flag (`?format=bash`) the service will return a bash
+script compatible format.
 
 #+BEGIN_SRC bash
-  #!/usr/bin/env bash
+$ curl -s "http://localhost:8000/order?format=bash" \
+    --header "Content-Type: Application/json" \
+    --data '@-' << END
+  {
+    "tasks":[
+      {
+        "name":"task-1",
+        "command":"touch /tmp/file1"
+      },
+      {
+        "name":"task-2",
+        "command":"cat /tmp/file1",
+        "requires":[
+          "task-3"
+        ]
+      },
+      {
+        "name":"task-3",
+        "command":"echo 'Hello World!' > /tmp/file1",
+        "requires":[
+          "task-1"
+        ]
+      },
+      {
+        "name":"task-4",
+        "command":"rm /tmp/file1",
+        "requires":[
+          "task-2",
+          "task-3"
+        ]
+      }
+    ]
+  }
+END
+#!/usr/bin/env bash
 
-  touch /tmp/file1
-  echo "Hello World!" > /tmp/file1
-  cat /tmp/file1
-  rm /tmp/file1
+touch /tmp/file1
+echo 'Hello World!' > /tmp/file1
+cat /tmp/file1
+rm /tmp/file1
 #+END_SRC
 
 ** Endpoints
@@ -84,7 +117,7 @@ format.
    - [ ] Tune proper tests
    - [ ] Add logging
    - [ ] Eunit for known failed test cases
-   - [ ] Dockerfile
+   - [X] Dockerfile
    - [ ] Licence file
    - [ ] Add documentation (edocs)
-   - [ ] REST is sooo 2000, let's to GraphQL
+   - [ ] REST is sooo 2000, let's do GraphQL
