@@ -6,8 +6,9 @@
                   , sasl
                   , prometheus
                   , cowboy
+                  , jsx
                   ]}
- , {env, []
  , {mod, {dos_app, []}}
+ , {env, []
    }
  ]}.
