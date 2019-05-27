@@ -23,7 +23,29 @@ start_cowboy() ->
              ],
     Dispatch = cowboy_router:compile(Routes),
     Port = application:get_env(dos, http_port, 8000),
+    logger:info("Starting dos at port ~B", [Port]),
     cowboy:start_clear( dos_http_listener
                       , [{port, Port}]
-                      , #{env => #{dispatch => Dispatch}}
+                      , #{ env => #{dispatch => Dispatch}
+                         , stream_handlers => [ cowboy_metrics_h
+                                              , cowboy_stream_h
+                                              ]
+                         , metrics_callback => fun log_request/1
+                         }
                       ).
+
+log_request(Metrics) ->
+    #{ req := Req
+     , resp_status := RespStatus
+     , req_start := ReqStart
+     , resp_end := RespEnd
+     } = Metrics,
+    Uri = cowboy_req:uri(Req),
+    Method = cowboy_req:method(Req),
+    {Ip, _Port} = cowboy_req:peer(Req),
+    IpAddr = inet:ntoa(Ip),
+    UserAgent = cowboy_req:header( <<"user-agent">>, Req
+                                 , <<"User-Agent not configured">>),
+    Time = erlang:convert_time_unit(RespEnd - ReqStart, native, microsecond),
+    logger:info( "~s -> ~s ~s ~B in ~Bu [~s]"
+               , [IpAddr, Method, Uri, RespStatus, Time, UserAgent]).

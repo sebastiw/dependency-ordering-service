@@ -115,7 +115,7 @@ rm /tmp/file1
 
 ** TODO Future work
    - [ ] Tune proper tests
-   - [ ] Add logging
+   - [X] Add logging
    - [ ] Eunit for known failed test cases
    - [X] Dockerfile
    - [ ] Licence file
