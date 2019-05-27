@@ -118,6 +118,6 @@ rm /tmp/file1
    - [X] Add logging
    - [ ] Eunit for known failed test cases
    - [X] Dockerfile
-   - [ ] Licence file
+   - [X] Licence file
    - [ ] Add documentation (edocs)
    - [ ] REST is sooo 2000, let's do GraphQL
