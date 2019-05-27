@@ -121,3 +121,5 @@ rm /tmp/file1
    - [X] Licence file
    - [ ] Add documentation (edocs)
    - [ ] REST is sooo 2000, let's do GraphQL
+   - [ ] Setup CI
+   - [ ] Add heartbeat/status endpoint
