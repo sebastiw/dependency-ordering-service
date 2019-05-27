@@ -25,10 +25,10 @@ from_json(Req0, State) ->
     {ok, JsonBinary, Req1} = cowboy_req:read_body(Req0),
     case try_order_tasks(JsonBinary) of
         {ok, Ordered} ->
-            dos_metrics:inc(successful_requests, [length(Ordered)]),
             #{format := Format} = State,
             case format_output(Ordered, Format) of
                 {ok, Response} ->
+                    dos_metrics:inc(successful_requests, [length(Ordered)]),
                     Req2 = cowboy_req:set_resp_body(Response, Req1),
                     {true, Req2, State};
                 {error, _} = Err ->
